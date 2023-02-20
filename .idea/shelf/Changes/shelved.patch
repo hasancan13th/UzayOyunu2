@@ -1,0 +1,434 @@
+Index: src/oyunEkranı.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/oyunEkranı.java b/src/oyunEkranı.java
+new file mode 100644
+--- /dev/null	(date 1676891452942)
++++ b/src/oyunEkranı.java	(date 1676891452942)
+@@ -0,0 +1,25 @@
++import javax.swing.*;
++import java.awt.*;
++
++public class oyunEkranı extends JFrame{
++ public oyunEkranı(String title) throws HeadlessException{
++     super(title);
++ }
++
++    public static void main(String[] args) {
++        JFrame ekran = new oyunEkranı("Uzay Oyunu By Hasan CAN");
++        ekran.setResizable(false);
++        ekran.setFocusable(false);
++
++        ekran.setSize(800,600);
++        ekran.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
++
++        Oyun oyun = new Oyun();
++        oyun.requestFocus();
++        oyun.addKeyListener(oyun);
++        oyun.setFocusable(true);
++        oyun.setFocusTraversalKeysEnabled(false);
++        ekran.add(oyun);
++        ekran.setVisible(true);
++    }
++}
+Index: src/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Main.java b/src/Main.java
+new file mode 100644
+--- /dev/null	(date 1676890475514)
++++ b/src/Main.java	(date 1676890475514)
+@@ -0,0 +1,3 @@
++public class Main {
++
++}
+\ No newline at end of file
+Index: src/Oyun.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Oyun.java b/src/Oyun.java
+new file mode 100644
+--- /dev/null	(date 1676901987503)
++++ b/src/Oyun.java	(date 1676901987503)
+@@ -0,0 +1,163 @@
++import javax.imageio.ImageIO;
++import javax.imageio.stream.FileImageInputStream;
++import javax.swing.*;
++import java.awt.*;
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
++import java.awt.event.KeyEvent;
++import java.awt.event.KeyListener;
++import java.awt.image.BufferedImage;
++import java.io.File;
++import java.io.IOException;
++import java.util.ArrayList;
++
++class ates{
++    private int x;
++    private  int y;
++
++    public ates(int x,int y) {
++        this.x = x;
++        this.y = y;
++    }
++
++    public int getY() {
++        return y;
++    }
++
++    public void setY(int y) {
++        this.y = y;
++    }
++
++    public int getX() {
++        return x;
++    }
++
++    public void setX(int x) {
++        this.x = x;
++    }
++}
++
++
++public class Oyun extends JPanel implements KeyListener, ActionListener {
++
++    Timer timer = new Timer(1,this);
++    private int gecenSure = 0;
++    private int harcananAtes = 0;
++     private BufferedImage image;
++
++     private ArrayList<ates> atesler = new ArrayList<ates>();
++     private int atesdirY = 1;
++     private int topX =0;
++
++     private int topdirX =2;
++
++     private int uzayGemisiX =0;
++
++     private int dirUzayX=20;
++
++     public boolean kontrolEt(){
++         for (ates ates: atesler) {
++             if (new Rectangle(ates.getX(),ates.getY(),10,20).intersects(new Rectangle(topX,0,20,20)))
++         return true;
++         }
++         return false;
++     }
++
++    public Oyun() {
++        try {
++            image = ImageIO.read(new FileImageInputStream(new File("roket.png")));
++        } catch (IOException e) {
++            throw new RuntimeException(e);
++        }
++        setBackground(Color.black);
++        timer.start();
++    }
++
++    @Override
++    public void paint(Graphics g) {
++        super.paint(g);
++        gecenSure += 5;
++        g.setColor(Color.yellow);
++        g.fillOval(topX,0, 20,20);
++        g.drawImage(image,uzayGemisiX,490,image.getWidth() /5  , image.getHeight() /5,this);
++        for (ates ates :atesler) {
++            if(ates.getY() < 0) {
++
++                atesler.remove(ates);
++            }
++        }
++            g.setColor(Color.WHITE);
++        for (ates ates : atesler){
++            g.fillRect(ates.getX(),ates.getY(),10,20);
++        }
++        if (kontrolEt()){
++            timer.stop();
++            String message = "Tebrikler Kazandınız " +
++                    "\nharcanan ates: " + harcananAtes +
++                    "\ngeçen süre: " + gecenSure /1000.0;
++            JOptionPane.showMessageDialog(this,message);
++            System.exit(0);
++        }
++    }
++
++    @Override
++    public void repaint() {
++        super.repaint();
++    }
++
++    @Override
++    public void keyTyped(KeyEvent e) {
++
++    }
++
++    @Override
++    public void keyPressed(KeyEvent e) {
++        int c = e.getKeyCode();
++        if (c == KeyEvent.VK_LEFT)
++        { if (uzayGemisiX <=0){
++            uzayGemisiX =0;
++        }else {
++            uzayGemisiX -=dirUzayX;
++        }
++
++        }else if (c == KeyEvent.VK_RIGHT)
++        {
++            if(uzayGemisiX >= 750){
++                uzayGemisiX =750;
++            }
++            else {
++                uzayGemisiX += dirUzayX;
++            }
++
++        }
++        else if (c== KeyEvent.VK_CONTROL) {
++            atesler.add(new ates(uzayGemisiX+45,490));
++            harcananAtes++;
++        }
++    }
++
++    @Override
++    public void keyReleased(KeyEvent e) {
++
++    }
++
++    @Override
++    public void actionPerformed(ActionEvent e) {
++        for (ates ates : atesler) {
++            ates.setY(ates.getY() - atesdirY);
++        }
++        topX += topdirX;
++
++        if(topX >750) {
++            topdirX =-topdirX;
++
++        }
++        if(topX<0) {
++            topdirX =-topdirX;
++
++        }
++            repaint();
++
++
++    }
++}
+Index: UzayOyunu.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/UzayOyunu.iml b/UzayOyunu.iml
+new file mode 100644
+--- /dev/null	(date 1676890372084)
++++ b/UzayOyunu.iml	(date 1676890372084)
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager" inherit-compiler-output="true">
++    <exclude-output />
++    <content url="file://$MODULE_DIR$">
++      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
++    </content>
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100644
+--- /dev/null	(date 1676890372134)
++++ b/.idea/modules.xml	(date 1676890372134)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/UzayOyunu.iml" filepath="$PROJECT_DIR$/UzayOyunu.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+new file mode 100644
+--- /dev/null	(date 1676890372168)
++++ b/.idea/misc.xml	(date 1676890372168)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_19" default="true" project-jdk-name="openjdk-19" project-jdk-type="JavaSDK">
++    <output url="file://$PROJECT_DIR$/out" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+new file mode 100644
+--- /dev/null	(date 1676913753979)
++++ b/.idea/workspace.xml	(date 1676913753979)
+@@ -0,0 +1,86 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="AutoImportSettings">
++    <option name="autoReloadType" value="SELECTIVE" />
++  </component>
++  <component name="ChangeListManager">
++    <list default="true" id="3da3ca6e-b5de-47a1-a351-1c4184fd8dd1" name="Changes" comment="">
++      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/UzayOyunu.iml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/roket.png" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/Oyun.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/oyunEkranı.java" afterDir="false" />
++    </list>
++    <option name="SHOW_DIALOG" value="false" />
++    <option name="HIGHLIGHT_CONFLICTS" value="true" />
++    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
++    <option name="LAST_RESOLUTION" value="IGNORE" />
++  </component>
++  <component name="FileTemplateManagerImpl">
++    <option name="RECENT_TEMPLATES">
++      <list>
++        <option value="Class" />
++      </list>
++    </option>
++  </component>
++  <component name="Git.Settings">
++    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
++  </component>
++  <component name="MarkdownSettingsMigration">
++    <option name="stateVersion" value="1" />
++  </component>
++  <component name="ProjectId" id="2M02qPnAuOf82Jd6baJhxTrLghj" />
++  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
++  <component name="ProjectViewState">
++    <option name="hideEmptyMiddlePackages" value="true" />
++    <option name="showLibraryContents" value="true" />
++  </component>
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;
++  }
++}</component>
++  <component name="RunManager">
++    <configuration name="oyunEkranı" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
++      <option name="MAIN_CLASS_NAME" value="oyunEkranı" />
++      <module name="UzayOyunu" />
++      <method v="2">
++        <option name="Make" enabled="true" />
++      </method>
++    </configuration>
++    <recent_temporary>
++      <list>
++        <item itemvalue="Application.oyunEkranı" />
++      </list>
++    </recent_temporary>
++  </component>
++  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
++  <component name="TaskManager">
++    <task active="true" id="Default" summary="Default task">
++      <changelist id="3da3ca6e-b5de-47a1-a351-1c4184fd8dd1" name="Changes" comment="" />
++      <created>1676890371439</created>
++      <option name="number" value="Default" />
++      <option name="presentableId" value="Default" />
++      <updated>1676890371439</updated>
++    </task>
++    <servers />
++  </component>
++  <component name="Vcs.Log.Tabs.Properties">
++    <option name="TAB_STATES">
++      <map>
++        <entry key="MAIN">
++          <value>
++            <State />
++          </value>
++        </entry>
++      </map>
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+Index: .gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+--- /dev/null	(date 1676890369755)
++++ b/.gitignore	(date 1676890369755)
+@@ -0,0 +1,29 @@
++### IntelliJ IDEA ###
++out/
++!**/src/main/**/out/
++!**/src/test/**/out/
++
++### Eclipse ###
++.apt_generated
++.classpath
++.factorypath
++.project
++.settings
++.springBeans
++.sts4-cache
++bin/
++!**/src/main/**/bin/
++!**/src/test/**/bin/
++
++### NetBeans ###
++/nbproject/private/
++/nbbuild/
++/dist/
++/nbdist/
++/.nb-gradle/
++
++### VS Code ###
++.vscode/
++
++### Mac OS ###
++.DS_Store
+\ No newline at end of file
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	(date 1676890372198)
++++ b/.idea/vcs.xml	(date 1676890372198)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
